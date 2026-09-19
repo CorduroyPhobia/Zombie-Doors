@@ -19,6 +19,16 @@ Doors move with the zombie as it takes cover, swings, and recovers from a hit.
 
 ![Door blocking, overhead cover, and attacks](docs/images/door-combat.gif)
 
+Blocked hits leave cracks in the door until it breaks.
+
+![An intact door, a damaged door, and the moment it breaks](docs/images/door-wear.png)
+
+![A carried door cracking and breaking under repeated attacks](docs/images/shield-breaking.gif)
+
+Zombies can pick up the wooden doors they break down.
+
+![A zombie breaking a placed door and taking it as a shield](docs/images/door-breaking.gif)
+
 ![A trident embedded in a door](docs/images/trident-block.png)
 
 Embedded tridents drop when the door breaks or the carrier loses it. Loyalty
