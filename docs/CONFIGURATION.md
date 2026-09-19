@@ -45,11 +45,11 @@ door when moving between biomes. Picked-up and broken doors keep their wood.
 | Crimson / warped forest | Crimson / warped |
 | Other biomes | Oak |
 
-Modded biomes with vanilla jungle, savanna, taiga, or badlands tags follow those
-families. Biomes with a base temperature of 0.2 or lower use spruce. Other biomes
-use oak unless configured below.
+Modded biomes also recognize Fabric's conventional biome and primary-wood tags.
+Biomes with a base temperature of 0.2 or lower use spruce when no wood mapping
+is available. Other unrecognized biomes use oak.
 
-Adult zombified piglins carry only crimson and warped doors. They use their
+Adult zombified piglins carry crimson and warped doors by default. They use their
 forest's door in the Nether, or choose either at random elsewhere. Babies and
 drowned cannot acquire or use doors. Zombies drop their door before converting
 to drowned.
@@ -65,8 +65,59 @@ Add `biomeDoorOverrides` alongside the other settings:
 
 An exact biome ID takes priority over a tag. Matching tags are checked in
 alphabetical order. Missing items and unsupported doors fall back to the next
-matching tag or the built-in choice. Modded doors must have the wooden-door item
-tag and use a door block.
+matching tag or the built-in choice.
+
+## Other mods
+
+Doors must use Minecraft's `DoorBlock` class, including subclasses, and have the
+`minecraft:wooden_doors` item or block tag. Their own models, textures, and sounds
+are used. Doors with custom renderers or a different shape may need a separate
+integration; the shield pose assumes a normal two-block door.
+
+For biomes outside the `minecraft` namespace, automatic matching first checks
+`c:primary_wood_type/<wood>` tags. A `c:primary_wood_type/maple` biome uses
+`maple_door` from the biome's mod when available, or a matching door from another
+installed mod. If several woods match, each has an equal chance.
+
+Without a matching wood tag, standard tree features are checked for trunk blocks
+ending in `_log`, `_wood`, `_stem`, or `_hyphae`. For example,
+`examplemod:maple_log` matches `examplemod:maple_door`. Custom world-generation
+systems that do not expose standard tree features can use an explicit mapping:
+
+```json
+"biomeDoorOverrides": {
+  "examplemod:maple_forest": "examplemod:maple_door",
+  "#examplemod:redwood_biomes": "examplemod:redwood_door"
+}
+```
+
+Config mappings take priority. Missing mods and unsupported doors are skipped,
+then biome-family tags and the defaults above provide a fallback. Automatic wood
+matching does not change the built-in choices for vanilla biomes.
+
+Data packs can add these mappings without editing the config:
+
+- `data/zombiedoors/tags/worldgen/biome/doors/examplemod/maple_door.json`
+  lists the biomes that should use `examplemod:maple_door`. These mappings take
+  priority over automatic wood matching; multiple matching doors form an equal
+  pool. Config overrides still win.
+- `data/zombiedoors/tags/item/door_shields.json` allows additional `DoorBlock`
+  items that lack wooden-door tags.
+- `data/zombiedoors/tags/item/piglin_doors.json` allows additional supported doors
+  for zombified piglins. By default this contains crimson and warped doors.
+
+For example, the biome tag file above can contain:
+
+```json
+{
+  "replace": false,
+  "values": ["examplemod:maple_forest", "examplemod:maple_hills"]
+}
+```
+
+The item tag files use the same format with item IDs in `values`. Tags can be
+changed with `/reload`. Vanilla door-breaking eligibility, difficulty, and Mob
+Griefing rules still apply unless the breaking override is enabled.
 
 ## Combat
 
