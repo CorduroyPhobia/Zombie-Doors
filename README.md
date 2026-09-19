@@ -52,6 +52,19 @@ Requires Fabric Loader, Fabric API, and Java 25. Install the mod and Fabric API
 on the server and each client. Mod Menu and Cloth Config are optional, for the
 configuration screen.
 
+Minimum versions for Zombie Doors 0.3.1:
+
+| Minecraft | Fabric Loader | Fabric API |
+| --- | --- | --- |
+| 26.1 | 0.18.4 | 0.144.1+26.1 |
+| 26.1.1 | 0.18.4 | 0.145.2+26.1.1 |
+| 26.1.2 | 0.18.4 | 0.145.4+26.1.2 |
+| 26.2 | 0.18.4 | 0.152.2+26.2 |
+| 26.3 | 0.19.3 | 0.160.6+26.3 |
+
+Newer Fabric versions are allowed. Use Fabric API for your Minecraft version;
+other installed mods may require a newer Loader or API.
+
 ## Configuration
 
 Edit `config/zombiedoors.json`, or use Mod Menu in singleplayer. On a dedicated
