@@ -8,10 +8,4 @@ mods/
 run/
 logs/
 *.class
-artwork/audit/
-artwork/audit-*.png
-artwork/cutouts/
-artwork/frames/
-artwork/zombie-doors-cover.png
-artwork/zombie-doors-thumbnail.gif
-artwork/zombie-doors-thumbnail-512.gif
+artwork/
