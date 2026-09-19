@@ -60,9 +60,6 @@ alphabetical order. Missing items and unsupported doors fall back to the next
 matching tag or the built-in choice. Modded doors must have the wooden-door item
 tag and use a door block.
 
-IDs are limited to 256 characters after normalization. Invalid JSON or malformed
-IDs leave the last valid settings active and log an error.
-
 ## Combat
 
 A door held in front blocks melee attacks, including sword sweeps, using vanilla
