@@ -3,13 +3,15 @@ package com.greysonloomis.zombiedoors.client.render;
 import com.greysonloomis.zombiedoors.gameplay.ZombieDoorShieldArrowImpact;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import java.util.ArrayList;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.util.RandomSource;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import java.util.ArrayList;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.object.projectile.ArrowModel;
+import net.minecraft.client.model.object.projectile.TridentModel;
+import net.minecraft.util.Unit;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -27,6 +29,7 @@ public final class ZombieDoorShieldLayer<
 	private static final float ARROW_MODEL_ORIGIN_AT_DOOR_FACE = 0.59F;
 
 	private final ArrowModel arrowModel;
+	private final TridentModel tridentModel;
 	private final ArrowRenderState arrowState = new ArrowRenderState();
 
 	public ZombieDoorShieldLayer(
@@ -35,6 +38,7 @@ public final class ZombieDoorShieldLayer<
 	) {
 		super(renderer);
 		arrowModel = new ArrowModel(context.bakeLayer(ModelLayers.ARROW));
+		tridentModel = new TridentModel(context.bakeLayer(ModelLayers.TRIDENT));
 	}
 
 	@Override
@@ -105,7 +109,7 @@ public final class ZombieDoorShieldLayer<
 	) {
 		for (ZombieDoorShieldArrowImpact impact : impacts) {
 			poseStack.pushPose();
-			poseStack.translate(impact.x(), impact.y(), ARROW_MODEL_ORIGIN_AT_DOOR_FACE);
+			poseStack.translate(impact.x(), impact.y(), impact.trident() ? 0.64F : ARROW_MODEL_ORIGIN_AT_DOOR_FACE);
 			float horizontal = (float) Math.sqrt(
 				impact.directionX() * impact.directionX()
 					+ impact.directionZ() * impact.directionZ()
@@ -117,17 +121,22 @@ public final class ZombieDoorShieldLayer<
 				impact.directionY(), horizontal
 			));
 			poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0F));
-			poseStack.mulPose(Axis.ZP.rotationDegrees(pitch));
-			collector.submitModel(
-				arrowModel,
-				arrowState,
-				poseStack,
-				TippableArrowRenderer.NORMAL_ARROW_LOCATION,
-				packedLight,
-				OverlayTexture.NO_OVERLAY,
-				outlineColor,
-				null
-			);
+			poseStack.mulPose(Axis.ZP.rotationDegrees(impact.trident() ? pitch + 90 : pitch));
+			if (impact.trident()) {
+				collector.submitModel(tridentModel, Unit.INSTANCE, poseStack, TridentModel.TEXTURE,
+					packedLight, OverlayTexture.NO_OVERLAY, outlineColor, null);
+			} else {
+				collector.submitModel(
+					arrowModel,
+					arrowState,
+					poseStack,
+					TippableArrowRenderer.NORMAL_ARROW_LOCATION,
+					packedLight,
+					OverlayTexture.NO_OVERLAY,
+					outlineColor,
+					null
+				);
+			}
 			poseStack.popPose();
 		}
 	}

@@ -27,6 +27,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Zombie.class)
 public abstract class ZombieBehaviorMixin implements ZombieDoorShieldAccess {
+	@Unique private java.util.List<ItemStack> zombiedoors$embeddedTridents;
+	@Override public java.util.List<ItemStack> zombiedoors$getEmbeddedTridents() {
+		return zombiedoors$embeddedTridents;
+	}
+
 	@Unique private static final EntityDataAccessor<Integer> ZOMBIE_DOORS_IMPACT_TICKS =
 		SynchedEntityData.defineId(Zombie.class, EntityDataSerializers.INT);
 	@Override public int zombiedoors$getDoorImpactTicks() {
@@ -81,6 +86,7 @@ public abstract class ZombieBehaviorMixin implements ZombieDoorShieldAccess {
 		SynchedEntityData.Builder entityData,
 		CallbackInfo callback
 	) {
+		zombiedoors$embeddedTridents = new java.util.ArrayList<>();
 		entityData.define(ZOMBIE_DOORS_DOOR_SHIELD, ItemStack.EMPTY);
 		entityData.define(ZOMBIE_DOORS_DOOR_SHIELD_POSE, ZombieDoorShieldAccess.POSE_NONE);
 		entityData.define(ZOMBIE_DOORS_DOOR_SHIELD_ARROW_IMPACTS, "");
@@ -146,6 +152,11 @@ public abstract class ZombieBehaviorMixin implements ZombieDoorShieldAccess {
 		}
 	}
 
+	@Inject(method = "doUnderWaterConversion", at = @At("HEAD"))
+	private void zombiedoors$dropBeforeDrowning(ServerLevel level, CallbackInfo callback) {
+		ZombieDoorShieldBehavior.dropDoor(level, (Zombie) (Object) this);
+	}
+
 	@Inject(method = "doHurtTarget", at = @At("HEAD"), cancellable = true)
 	private void zombiedoors$allowOneDoorWhackDamage(
 		ServerLevel level,
@@ -179,6 +190,7 @@ public abstract class ZombieBehaviorMixin implements ZombieDoorShieldAccess {
 			output.putInt("RebornDoorShieldDurability", zombiedoors$getDoorShieldDurability());
 			output.putInt("RebornDoorShieldMaxDurability", zombiedoors$getDoorShieldMaxDurability());
 			output.putString("RebornDoorShieldArrowImpacts", zombiedoors$getDoorShieldArrowImpacts());
+			output.store("ZombieDoorsTridents", ItemStack.CODEC.listOf(), zombiedoors$embeddedTridents);
 		}
 	}
 
@@ -186,7 +198,7 @@ public abstract class ZombieBehaviorMixin implements ZombieDoorShieldAccess {
 	private void zombiedoors$loadDoorShield(ValueInput input, CallbackInfo callback) {
 		ItemStack door = input.read("RebornDoorShield", ItemStack.CODEC).orElse(ItemStack.EMPTY);
 		Zombie zombie = (Zombie) (Object) this;
-		if (ZombieDoorShieldBehavior.isWoodenDoor(door) && !zombie.isBaby()) {
+		if (ZombieDoorShieldBehavior.canHoldDoor(zombie, door)) {
 			zombiedoors$setDoorShield(
 				door,
 				input.getIntOr("RebornDoorShieldMaxDurability", Math.max(
@@ -201,6 +213,7 @@ public abstract class ZombieBehaviorMixin implements ZombieDoorShieldAccess {
 				);
 			}
 			zombiedoors$setDoorShieldArrowImpacts(impacts);
+			zombiedoors$embeddedTridents.addAll(input.read("ZombieDoorsTridents", ItemStack.CODEC.listOf()).orElse(java.util.List.of()));
 		} else {
 			zombiedoors$setDoorShield(ItemStack.EMPTY, 0);
 		}
@@ -213,6 +226,7 @@ public abstract class ZombieBehaviorMixin implements ZombieDoorShieldAccess {
 
 	@Override
 	public void zombiedoors$setDoorShield(ItemStack stack, int durability) {
+		zombiedoors$embeddedTridents.clear();
 		ItemStack stored = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
 		if (!stored.isEmpty()) {
 			stored.setCount(1);
