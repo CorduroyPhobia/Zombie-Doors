@@ -1,6 +1,6 @@
 # Zombie Doors
 
-A Fabric mod for Minecraft 26.1.2, created by **Corduroy Phobia**.
+A Fabric mod for Minecraft 26.2, created by **Corduroy Phobia**.
 
 ![Zombie Doors](artwork/zombie-doors-thumbnail-512-v2.gif)
 
@@ -19,10 +19,23 @@ carry them.
 - Door breaking follows vanilla rules by default. The config has an override
   for zombies that would not normally break doors.
 
+## Downloads
+
+Each release contains an installable JAR, a sources JAR, and the full source archive.
+Choose the release for your exact Minecraft version.
+
+| Minecraft | Release | Branch |
+| --- | --- | --- |
+| 26.1 | [Download](https://github.com/CorduroyPhobia/Zombie-Doors/releases/tag/v0.1.0-mc26.1) | [Source](https://github.com/CorduroyPhobia/Zombie-Doors/tree/minecraft/26.1) |
+| 26.1.1 | [Download](https://github.com/CorduroyPhobia/Zombie-Doors/releases/tag/v0.1.0-mc26.1.1) | [Source](https://github.com/CorduroyPhobia/Zombie-Doors/tree/minecraft/26.1.1) |
+| 26.1.2 | [Download](https://github.com/CorduroyPhobia/Zombie-Doors/releases/tag/v0.1.0-mc26.1.2) | [Source](https://github.com/CorduroyPhobia/Zombie-Doors/tree/minecraft/26.1.2) |
+| 26.2 | [Download](https://github.com/CorduroyPhobia/Zombie-Doors/releases/tag/v0.1.0-mc26.2) | [Source](https://github.com/CorduroyPhobia/Zombie-Doors/tree/minecraft/26.2) |
+| 26.3 | [Download](https://github.com/CorduroyPhobia/Zombie-Doors/releases/tag/v0.1.0-mc26.3) | [Source](https://github.com/CorduroyPhobia/Zombie-Doors/tree/minecraft/26.3) |
+
 ## Install
 
 Install the mod and Fabric API on the server and each client. Use Minecraft
-26.1.2, Java 25, and Fabric Loader 0.19.3 or later.
+26.2, Java 25, and Fabric Loader 0.19.5 or later.
 
 Mod Menu and Cloth Config are optional client mods for the configuration screen.
 The mod uses vanilla door and arrow assets, including resource-pack replacements.
@@ -45,7 +58,7 @@ Build the JAR with:
 .\gradlew.bat build
 ```
 
-The result is `build/libs/zombie-doors-0.1.0.jar`. Dependency versions are in
+The result is `build/libs/zombie-doors-0.1.0+mc26.2.jar`. Dependency versions are in
 `gradle.properties`.
 
 ## Configuration

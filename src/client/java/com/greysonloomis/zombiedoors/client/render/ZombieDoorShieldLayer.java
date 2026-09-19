@@ -3,6 +3,10 @@ package com.greysonloomis.zombiedoors.client.render;
 import com.greysonloomis.zombiedoors.gameplay.ZombieDoorShieldArrowImpact;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import java.util.ArrayList;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.util.RandomSource;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.object.projectile.ArrowModel;
@@ -62,8 +66,8 @@ public final class ZombieDoorShieldLayer<
 			poseStack, collector, doorLight, OverlayTexture.NO_OVERLAY, state.outlineColor
 		);
 		if (doorState.zombiedoors$getDoorDamageStage() >= 0) {
-			collector.submitBreakingBlockModel(poseStack, doorState.zombiedoors$getLowerCrackModel(),
-				0L, doorState.zombiedoors$getDoorDamageStage());
+			submitCracks(poseStack, collector, doorState.zombiedoors$getLowerCrackModel(),
+				doorState.zombiedoors$getDoorDamageStage());
 		}
 		poseStack.pushPose();
 		poseStack.translate(0.0F, 1.0F, 0.0F);
@@ -71,8 +75,8 @@ public final class ZombieDoorShieldLayer<
 			poseStack, collector, doorLight, OverlayTexture.NO_OVERLAY, state.outlineColor
 		);
 		if (doorState.zombiedoors$getDoorDamageStage() >= 0) {
-			collector.submitBreakingBlockModel(poseStack, doorState.zombiedoors$getUpperCrackModel(),
-				0L, doorState.zombiedoors$getDoorDamageStage());
+			submitCracks(poseStack, collector, doorState.zombiedoors$getUpperCrackModel(),
+				doorState.zombiedoors$getDoorDamageStage());
 		}
 		poseStack.popPose();
 		submitEmbeddedArrows(
@@ -83,6 +87,13 @@ public final class ZombieDoorShieldLayer<
 			doorState.zombiedoors$getRenderedDoorShieldArrowImpacts()
 		);
 		poseStack.popPose();
+	}
+
+	private static void submitCracks(PoseStack poseStack, SubmitNodeCollector collector,
+		BlockStateModel model, int stage) {
+		var parts = new ArrayList<BlockStateModelPart>();
+		model.collectParts(RandomSource.create(0L), parts);
+		collector.submitBreakingBlockModel(poseStack, parts, stage);
 	}
 
 	private void submitEmbeddedArrows(
