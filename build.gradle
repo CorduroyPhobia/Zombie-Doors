@@ -25,16 +25,6 @@ loom {
     }
 }
 
-fabricApi {
-    configureTests {
-        createSourceSet = true
-        modId = "${project.mod_id}-thumbnail"
-        enableGameTests = false
-        enableClientGameTests = true
-        eula = true
-    }
-}
-
 configurations { clientImplementation.extendsFrom implementation }
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -72,10 +62,6 @@ tasks.named('processResources') {
     inputs.properties(metadata)
     filesMatching('fabric.mod.json') { expand metadata }
 }
-tasks.named('processGametestResources') {
-    inputs.properties(metadata)
-    filesMatching('fabric.mod.json') { expand metadata }
-}
 tasks.withType(JavaCompile).configureEach {
     options.release = 25
     options.encoding = 'UTF-8'
@@ -90,21 +76,3 @@ tasks.named('sourcesJar') {
     from('LICENSE')
 }
 jar { from('LICENSE') { rename { "${it}_${project.archives_base_name}" } } }
-
-configurations { thumbnailMods }
-dependencies {
-    thumbnailMods "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-}
-tasks.register('thumbnailJar', Jar) {
-    archiveClassifier = 'thumbnail'
-    destinationDirectory = layout.buildDirectory.dir('thumbnail')
-    from sourceSets.gametest.output
-}
-
-tasks.register('captureThumbnail', net.fabricmc.loom.task.prod.ClientProductionRunTask) {
-    mods.setFrom(tasks.named('jar'), tasks.named('thumbnailJar'), configurations.thumbnailMods)
-    runDir = layout.buildDirectory.dir('run/thumbnailStudio')
-    useXVFB = false
-    jvmArgs.addAll('-Xmx2G', '-Dfabric.client.gametest')
-    programArgs.addAll('--username', 'DoorStudio', '--accessToken', '0', '--version', project.minecraft_version)
-}
