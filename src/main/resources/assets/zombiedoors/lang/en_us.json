@@ -1,0 +1,22 @@
+{
+  "text.zombiedoors.config.server_controlled": "These settings are controlled by the server. Ask the server owner to change them; your local settings are unchanged.",
+  "text.zombiedoors.config.server_unavailable": "This server has not sent Zombie Doors settings. Local settings cannot change multiplayer gameplay.",
+  "text.zombiedoors.config.reliable_zombie_door_breaking": "Zombies Consistently Break Doors",
+  "text.zombiedoors.config.reliable_zombie_door_breaking.tooltip": "Off by default: use vanilla door-breaking eligibility and Hard-difficulty rules. Enable to let every zombie break wooden doors on Easy, Normal, and Hard. Mob Griefing still applies.",
+  "text.zombiedoors.config.zombie_door_pose_cooldown_seconds": "Door Pose Dwell (Seconds)",
+  "text.zombiedoors.config.zombie_door_pose_cooldown_seconds.tooltip": "Minimum time the zombie tends to hold a door position before returning to a less urgent pose.",
+  "text.zombiedoors.config.zombie_door_pose_transition_seconds": "Door Pose Transition (Seconds)",
+  "text.zombiedoors.config.zombie_door_pose_transition_seconds.tooltip": "Base time for gradual door movement between poses. The downward slam animates 75 percent faster so its hit aligns with visible contact.",
+  "text.zombiedoors.config.zombie_door_shield_axe_disable_seconds": "Axe Disable Time (Seconds)",
+  "text.zombiedoors.config.zombie_door_shield_axe_disable_seconds.tooltip": "How long a blocked axe hit disables melee/projectile blocking and sunlight protection. Set to 0 to turn disabling off.",
+  "text.zombiedoors.config.zombie_door_shield_durability": "Door Shield Durability",
+  "text.zombiedoors.config.zombie_door_shield_durability.tooltip": "Damage a carried door can absorb from blocked frontal melee attacks and projectiles before it breaks.",
+  "text.zombiedoors.config.zombie_door_shield_spawn_chance": "Door Shield Spawn Chance",
+  "text.zombiedoors.config.zombie_door_shield_spawn_chance.tooltip": "Base chance for an empty-handed adult zombie to spawn with a wooden door matching its biome. The chance doubles on Hard difficulty.",
+  "text.zombiedoors.config.zombie_door_shields": "Zombie Door Shields",
+  "text.zombiedoors.config.zombie_door_shields.tooltip": "Allow adult zombies, husks, and zombie villagers to carry wooden doors as melee/projectile shields, sunlight cover, and slow melee weapons. Sun-sensitive carriers seek shade during the day unless a target is close enough to attack.",
+  "text.zombiedoors.config.zombie_door_whack_cooldown_seconds": "Door Whack Cooldown (Seconds)",
+  "text.zombiedoors.config.zombie_door_whack_cooldown_seconds.tooltip": "Time between the zombie's slower two-handed door attacks.",
+  "text.zombiedoors.config.zombie_door_whack_reach_bonus": "Door Whack Reach Bonus",
+  "text.zombiedoors.config.zombie_door_whack_reach_bonus.tooltip": "Extra block reach added to melee attacks made with a carried door."
+}

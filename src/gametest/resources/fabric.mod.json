@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}-thumbnail",
+  "version": "${version}",
+  "name": "${mod_name} Thumbnail Capture",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": ["${maven_group}.gametest.ZombieDoorsThumbnailCapture"]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "package": "com.greysonloomis.zombiedoors.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "ZombieBehaviorMixin",
+    "LivingEntityDoorBlockingMixin",
+    "MobDoorShieldMixin",
+    "MobGoalSelectorAccess",
+    "BreakDoorGoalMixin",
+    "MeleeAttackGoalDoorShieldMixin"
+  ],
+  "client": [
+    "client.LivingEntityRenderStateDoorShieldMixin",
+    "client.LivingEntityRendererDoorShieldMixin",
+    "client.HumanoidModelDoorShieldMixin",
+    "client.AbstractZombieModelDoorShieldMixin",
+    "client.ZombieVillagerModelDoorShieldMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}
