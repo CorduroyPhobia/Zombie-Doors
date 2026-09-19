@@ -13,6 +13,10 @@ Carriers can spawn with a door, with the wood type chosen by biome. Door breakin
 follows vanilla rules unless you enable the override in the config. Have your
 attack blocked to earn **The Zombies Are Coming** advancement.
 
+Standard modded wooden doors work too. Modded biomes use their wood tags or tree
+features to choose a matching door, with config and data-pack mappings available
+for other setups. See [mod compatibility](docs/CONFIGURATION.md#other-mods).
+
 ![Zombies, a husk, a zombie villager, and zombified piglins with doors](docs/images/door-guards.png)
 
 Doors move with the zombie as it takes cover, swings, and recovers from a hit.
