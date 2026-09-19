@@ -152,11 +152,6 @@ public abstract class ZombieBehaviorMixin implements ZombieDoorShieldAccess {
 		}
 	}
 
-	@Inject(method = "doUnderWaterConversion", at = @At("HEAD"))
-	private void zombiedoors$dropBeforeDrowning(ServerLevel level, CallbackInfo callback) {
-		ZombieDoorShieldBehavior.dropDoor(level, (Zombie) (Object) this);
-	}
-
 	@Inject(method = "doHurtTarget", at = @At("HEAD"), cancellable = true)
 	private void zombiedoors$allowOneDoorWhackDamage(
 		ServerLevel level,
