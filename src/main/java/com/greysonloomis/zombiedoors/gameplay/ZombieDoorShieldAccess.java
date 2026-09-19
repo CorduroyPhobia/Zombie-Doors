@@ -59,6 +59,8 @@ public interface ZombieDoorShieldAccess {
 
 	void zombiedoors$setDoorWhackDamageReady(boolean ready);
 
+	java.util.List<ItemStack> zombiedoors$getEmbeddedTridents();
+
 	String zombiedoors$getDoorShieldArrowImpacts();
 
 	void zombiedoors$setDoorShieldArrowImpacts(String impacts);

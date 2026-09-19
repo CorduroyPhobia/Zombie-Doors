@@ -8,14 +8,18 @@
     "MobDoorShieldMixin",
     "MobGoalSelectorAccess",
     "BreakDoorGoalMixin",
-    "MeleeAttackGoalDoorShieldMixin"
+    "MeleeAttackGoalDoorShieldMixin",
+    "ZombifiedPiglinDoorMixin"
   ],
   "client": [
     "client.LivingEntityRenderStateDoorShieldMixin",
     "client.LivingEntityRendererDoorShieldMixin",
     "client.HumanoidModelDoorShieldMixin",
     "client.AbstractZombieModelDoorShieldMixin",
-    "client.ZombieVillagerModelDoorShieldMixin"
+    "client.ZombieVillagerModelDoorShieldMixin",
+    "client.ZombifiedPiglinModelDoorMixin"
   ],
-  "injectors": { "defaultRequire": 1 }
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

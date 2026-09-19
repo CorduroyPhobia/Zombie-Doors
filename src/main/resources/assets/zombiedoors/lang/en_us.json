@@ -18,5 +18,7 @@
   "text.zombiedoors.config.zombie_door_whack_cooldown_seconds": "Door Whack Cooldown (Seconds)",
   "text.zombiedoors.config.zombie_door_whack_cooldown_seconds.tooltip": "Time between the zombie's slower two-handed door attacks.",
   "text.zombiedoors.config.zombie_door_whack_reach_bonus": "Door Whack Reach Bonus",
-  "text.zombiedoors.config.zombie_door_whack_reach_bonus.tooltip": "Extra block reach added to melee attacks made with a carried door."
+  "text.zombiedoors.config.zombie_door_whack_reach_bonus.tooltip": "Extra block reach added to melee attacks made with a carried door.",
+  "advancements.zombiedoors.the_zombies_are_coming.title": "The Zombies Are Coming",
+  "advancements.zombiedoors.the_zombies_are_coming.description": "Have your attack blocked by a zombie's door shield"
 }

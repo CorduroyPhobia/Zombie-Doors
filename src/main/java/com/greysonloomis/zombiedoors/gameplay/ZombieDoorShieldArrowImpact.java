@@ -4,14 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.phys.Vec3;
 
-/** A blocked arrow's exact position and incoming direction in carried-door space. */
+/** Position and incoming direction in carried-door space. */
 public record ZombieDoorShieldArrowImpact(
 	float x,
 	float y,
 	float directionX,
 	float directionY,
-	float directionZ
+	float directionZ,
+	boolean trident
 ) {
+	public ZombieDoorShieldArrowImpact(float x, float y, float directionX, float directionY, float directionZ) {
+		this(x, y, directionX, directionY, directionZ, false);
+	}
+
+	public ZombieDoorShieldArrowImpact asTrident() {
+		return new ZombieDoorShieldArrowImpact(x, y, directionX, directionY, directionZ, true);
+	}
+
 	public static final int MAX_IMPACTS = 12;
 	private static final float EDGE_MARGIN = 0.02F;
 
@@ -104,7 +113,7 @@ public record ZombieDoorShieldArrowImpact(
 				break;
 			}
 			String[] values = entry.split(",");
-			if (values.length != 5 && values.length != 6) {
+			if (values.length != 5 && values.length != 6 && values.length != 7) {
 				continue;
 			}
 			try {
@@ -120,7 +129,7 @@ public record ZombieDoorShieldArrowImpact(
 				ZombieDoorShieldArrowImpact impact = new ZombieDoorShieldArrowImpact(
 					clamp(x, EDGE_MARGIN, 1.0F - EDGE_MARGIN),
 					clamp(y, EDGE_MARGIN, 2.0F - EDGE_MARGIN),
-					directionX, directionY, directionZ
+					directionX, directionY, directionZ, values.length == 7 && values[6].equals("trident")
 				);
 				Long embeddedAt = values.length == 6 ? Long.parseLong(values[5]) : null;
 				impacts.add(new ParsedImpact(impact, embeddedAt));
@@ -137,6 +146,7 @@ public record ZombieDoorShieldArrowImpact(
 			+ Float.toString(impact.directionX()) + ','
 			+ Float.toString(impact.directionY()) + ','
 			+ Float.toString(impact.directionZ());
+		if (impact.trident()) return entry + ",0,trident";
 		return embeddedAt == null ? entry : entry + ',' + embeddedAt;
 	}
 
