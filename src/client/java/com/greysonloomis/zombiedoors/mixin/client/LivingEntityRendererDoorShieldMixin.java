@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.entity.AbstractZombieRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.ZombieVillagerRenderer;
+import net.minecraft.client.renderer.entity.ZombifiedPiglinRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.core.BlockPos;
@@ -58,7 +59,8 @@ public abstract class LivingEntityRendererDoorShieldMixin<
 	) {
 		zombiedoors$doorBlockModelResolver = context.getBlockModelResolver();
 		if ((Object) this instanceof AbstractZombieRenderer<?, ?, ?>
-			|| (Object) this instanceof ZombieVillagerRenderer) {
+			|| (Object) this instanceof ZombieVillagerRenderer
+            || (Object) this instanceof ZombifiedPiglinRenderer) {
 			try {
 				LivingEntityRenderer<T, S, M> renderer =
 					(LivingEntityRenderer<T, S, M>) (Object) this;
@@ -86,7 +88,7 @@ public abstract class LivingEntityRendererDoorShieldMixin<
 		renderState.zombiedoors$setDoorBlockLightOverride(-1);
 		if (!(entity instanceof Zombie zombie)
 			|| !(zombie instanceof ZombieDoorShieldAccess doorZombie)
-			|| !ZombieDoorShieldBehavior.isWoodenDoor(doorZombie.zombiedoors$getDoorShield())) {
+			|| !ZombieDoorShieldBehavior.canHoldDoor(zombie, doorZombie.zombiedoors$getDoorShield())) {
 			renderState.zombiedoors$setRenderedDoorShield(ItemStack.EMPTY);
 			renderState.zombiedoors$setRenderedDoorShieldPose(ZombieDoorShieldAccess.POSE_NONE);
 			renderState.zombiedoors$setRenderedPreviousDoorShieldPose(ZombieDoorShieldAccess.POSE_NONE);

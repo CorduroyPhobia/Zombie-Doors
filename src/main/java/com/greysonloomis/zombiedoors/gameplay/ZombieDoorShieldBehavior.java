@@ -6,6 +6,8 @@ import com.greysonloomis.zombiedoors.generated.ProjectIdentity;
 import java.util.Comparator;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
@@ -75,13 +77,17 @@ public final class ZombieDoorShieldBehavior {
 
 	private static boolean isEligibleCarrier(Zombie zombie) {
 		return !zombie.isBaby()
-			&& !(zombie instanceof Drowned)
-			&& !(zombie instanceof ZombifiedPiglin);
+			&& !(zombie instanceof Drowned);
+	}
+
+	public static boolean canHoldDoor(Zombie zombie, ItemStack stack) {
+		return isEligibleCarrier(zombie) && isWoodenDoor(stack)
+			&& (!(zombie instanceof ZombifiedPiglin) || stack.is(Items.CRIMSON_DOOR) || stack.is(Items.WARPED_DOOR));
 	}
 
 	public static void maybeEquipSpawnedDoor(Zombie zombie, RandomSource random) {
 		if (!canAcquire(zombie)
-			|| !zombie.getMainHandItem().isEmpty()
+			|| !zombie.getMainHandItem().isEmpty() && !(zombie instanceof ZombifiedPiglin)
 			|| !zombie.getOffhandItem().isEmpty()) {
 			return;
 		}
@@ -94,15 +100,19 @@ public final class ZombieDoorShieldBehavior {
 			return;
 		}
 		ItemStack door = new ItemStack(ZombieDoorBiomes.doorFor(
-			zombie.level().getBiome(zombie.blockPosition())
+			zombie.level().getBiome(zombie.blockPosition()), random
 		));
-		if (isWoodenDoor(door)) {
+		if (zombie instanceof ZombifiedPiglin) {
+			if (!canHoldDoor(zombie, door)) door = new ItemStack(random.nextBoolean() ? Items.CRIMSON_DOOR : Items.WARPED_DOOR);
+			zombie.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+		}
+		if (canHoldDoor(zombie, door)) {
 			acquire(zombie, door, false);
 		}
 	}
 
 	public static boolean shouldPickUp(Zombie zombie, ItemStack stack) {
-		return isWoodenDoor(stack) && canAcquire(zombie);
+		return canHoldDoor(zombie, stack) && canAcquire(zombie);
 	}
 
 	public static boolean refusesEquipmentPickup(Zombie zombie, ItemStack stack) {
@@ -116,7 +126,7 @@ public final class ZombieDoorShieldBehavior {
 	}
 
 	public static ItemStack equipPickedUpDoor(Zombie zombie, ServerLevel level, ItemStack stack) {
-		if (!isWoodenDoor(stack) || !canAcquire(zombie)) {
+		if (!canHoldDoor(zombie, stack) || !canAcquire(zombie)) {
 			return ItemStack.EMPTY;
 		}
 		clearHands(zombie, level);
@@ -130,7 +140,7 @@ public final class ZombieDoorShieldBehavior {
 	public static void acquireBrokenDoor(Zombie zombie, BlockState doorState) {
 		Item item = doorState.getBlock().asItem();
 		ItemStack stack = new ItemStack(item);
-		if (canAcquire(zombie) && isWoodenDoor(stack)) {
+		if (canAcquire(zombie) && canHoldDoor(zombie, stack)) {
 			if (zombie.level() instanceof ServerLevel level) {
 				clearHands(zombie, level);
 			}
@@ -140,7 +150,7 @@ public final class ZombieDoorShieldBehavior {
 
 	public static boolean canAcquireBrokenDoor(Zombie zombie, BlockState doorState) {
 		return canAcquire(zombie)
-			&& isWoodenDoor(new ItemStack(doorState.getBlock().asItem()));
+			&& canHoldDoor(zombie, new ItemStack(doorState.getBlock().asItem()));
 	}
 
 	private static void acquire(Zombie zombie, ItemStack stack, boolean playSound) {
@@ -179,7 +189,7 @@ public final class ZombieDoorShieldBehavior {
 			return;
 		}
 		if (!ZombieDoors.configOrDefaults().enableZombieDoorShields()
-			|| !isEligibleCarrier(zombie)) {
+			|| !canHoldDoor(zombie, access.zombiedoors$getDoorShield())) {
 			dropDoor(level, zombie);
 			return;
 		}
@@ -251,7 +261,8 @@ public final class ZombieDoorShieldBehavior {
 	) {
 		if (!(damage > 0) || !Float.isFinite(damage)
 			|| !(zombie instanceof ZombieDoorShieldAccess access)
-			|| !hasDoor(zombie)
+			|| !hasDoor(zombie) || !canHoldDoor(zombie, access.zombiedoors$getDoorShield())
+			|| !ZombieDoors.configOrDefaults().enableZombieDoorShields()
 			|| access.zombiedoors$getDoorShieldPose() != ZombieDoorShieldAccess.POSE_BLOCKING
 			|| access.zombiedoors$getDoorShieldDisabledTicks() > 0
 			|| access.zombiedoors$getDoorShieldAttackTicks() > 0
@@ -263,7 +274,11 @@ public final class ZombieDoorShieldBehavior {
 		ItemStack door = access.zombiedoors$getDoorShield();
 		int durability = access.zombiedoors$getDoorShieldDurability()
 			- ZombieDoorShieldRules.damageToDurability(damage);
-		boolean embedsInDoor = projectile instanceof Arrow;
+		boolean sticks = projectile instanceof ThrownTrident trident
+			&& zombie.level() instanceof ServerLevel level
+			&& EnchantmentHelper.getTridentReturnToOwnerAcceleration(level, trident.getWeaponItem(), trident) == 0
+			&& ZombieDoorShieldArrowImpact.decode(access.zombiedoors$getDoorShieldArrowImpacts()).size() < ZombieDoorShieldArrowImpact.MAX_IMPACTS;
+		boolean embedsInDoor = projectile instanceof Arrow || sticks;
 		playShieldBlockSound(zombie);
 		if (durability <= 0) {
 			breakDoor(zombie, door);
@@ -276,6 +291,12 @@ public final class ZombieDoorShieldBehavior {
 					zombie.position(),
 					zombie.yBodyRot
 				);
+				if (sticks && projectile instanceof ThrownTrident trident) {
+					impact = impact.asTrident();
+					if (trident.pickup == AbstractArrow.Pickup.ALLOWED) {
+						access.zombiedoors$getEmbeddedTridents().add(trident.getPickupItemStackOrigin().copy());
+					}
+				}
 				access.zombiedoors$setDoorShieldArrowImpacts(
 					ZombieDoorShieldArrowImpact.append(
 						access.zombiedoors$getDoorShieldArrowImpacts(),
@@ -284,6 +305,11 @@ public final class ZombieDoorShieldBehavior {
 				);
 			}
 		}
+		if (sticks && durability <= 0 && projectile instanceof ThrownTrident trident
+			&& trident.pickup == AbstractArrow.Pickup.ALLOWED && zombie.level() instanceof ServerLevel level) {
+			zombie.spawnAtLocation(level, trident.getPickupItemStackOrigin().copy());
+		}
+		awardBlockedAttack(projectile.getOwner(), zombie);
 		if (embedsInDoor) {
 			projectile.discard();
 		}
@@ -314,6 +340,7 @@ public final class ZombieDoorShieldBehavior {
 		double angle = Math.acos(Math.clamp(offset.dot(new Vec3(-Math.sin(yaw), 0, Math.cos(yaw))), -1, 1));
 		float blocked = shield.resolveBlockedDamage(source, damage, angle);
 		if (blocked <= 0) return 0;
+		awardBlockedAttack(attacker, zombie);
 		int remaining = access.zombiedoors$getDoorShieldDurability() - ZombieDoorShieldRules.damageToDurability(blocked);
 		playShieldBlockSound(zombie);
 		if (remaining <= 0) breakDoor(zombie, access.zombiedoors$getDoorShield());
@@ -323,6 +350,14 @@ public final class ZombieDoorShieldBehavior {
 			if (attacker.getSecondsToDisableBlocking() > 0) disableWithAxe(zombie);
 		}
 		return blocked;
+	}
+
+	private static void awardBlockedAttack(Entity attacker, Zombie zombie) {
+		if (attacker instanceof ServerPlayer player && zombie.level() instanceof ServerLevel level) {
+			var advancement = level.getServer().getAdvancements().get(
+				Identifier.fromNamespaceAndPath(ProjectIdentity.MOD_ID, "the_zombies_are_coming"));
+			if (advancement != null) player.getAdvancements().award(advancement, "blocked_attack");
+		}
 	}
 
 	private static void reactToBlockedHit(ZombieDoorShieldAccess access) {
@@ -438,7 +473,7 @@ public final class ZombieDoorShieldBehavior {
 	}
 
 	public static boolean isDirectDaylightExposed(Zombie zombie) {
-		return !(zombie instanceof Husk) && MonsterDaylight.isDirectlyExposed(zombie);
+		return !(zombie instanceof Husk) && !(zombie instanceof ZombifiedPiglin) && MonsterDaylight.isDirectlyExposed(zombie);
 	}
 
 	private static boolean canRaiseSunshade(ZombieDoorShieldAccess access) {
@@ -494,6 +529,7 @@ public final class ZombieDoorShieldBehavior {
 			return;
 		}
 		ItemStack drop = access.zombiedoors$getDoorShield().copy();
+		for (ItemStack trident : access.zombiedoors$getEmbeddedTridents()) zombie.spawnAtLocation(level, trident.copy());
 		access.zombiedoors$setDoorShield(ItemStack.EMPTY, 0);
 		zombie.spawnAtLocation(level, drop);
 	}
@@ -509,6 +545,9 @@ public final class ZombieDoorShieldBehavior {
 				null, zombie.blockPosition(), state.getSoundType().getBreakSound(),
 				SoundSource.HOSTILE, 1.0F, 0.9F + zombie.getRandom().nextFloat() * 0.2F
 			);
+		}
+		if (zombie.level() instanceof ServerLevel server) {
+			for (ItemStack trident : access.zombiedoors$getEmbeddedTridents()) zombie.spawnAtLocation(server, trident.copy());
 		}
 		access.zombiedoors$setDoorShield(ItemStack.EMPTY, 0);
 	}
