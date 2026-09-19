@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.entity.ZombifiedPiglinRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.BlockItem;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -130,6 +132,9 @@ public abstract class LivingEntityRendererDoorShieldMixin<
 		if (doorStack.getItem() instanceof BlockItem blockItem
 			&& blockItem.getBlock() instanceof DoorBlock) {
 			BlockState lower = blockItem.getBlock().defaultBlockState()
+				.setValue(DoorBlock.FACING, Direction.NORTH)
+				.setValue(DoorBlock.OPEN, false)
+				.setValue(DoorBlock.HINGE, DoorHingeSide.LEFT)
 				.setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER);
 			BlockState upper = lower.setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER);
 			var models = Minecraft.getInstance().getModelManager().getBlockStateModelSet();

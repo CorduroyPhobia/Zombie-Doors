@@ -11,6 +11,9 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -40,6 +43,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public final class ZombieDoorShieldBehavior {
+	private static final TagKey<Item> DOOR_SHIELDS = TagKey.create(Registries.ITEM,
+		Identifier.fromNamespaceAndPath(ProjectIdentity.MOD_ID, "door_shields"));
+	private static final TagKey<Item> PIGLIN_DOORS = TagKey.create(Registries.ITEM,
+		Identifier.fromNamespaceAndPath(ProjectIdentity.MOD_ID, "piglin_doors"));
 	public static final int IMPACT_ANIMATION_TICKS = 8;
 	private static final double PROJECTILE_SCAN_RADIUS = 14.0;
 	private static final double PROJECTILE_LOOKAHEAD_TICKS = 18.0;
@@ -59,9 +66,10 @@ public final class ZombieDoorShieldBehavior {
 
 	public static boolean isWoodenDoor(ItemStack stack) {
 		return !stack.isEmpty()
-			&& stack.is(ItemTags.WOODEN_DOORS)
 			&& stack.getItem() instanceof BlockItem blockItem
-			&& blockItem.getBlock() instanceof DoorBlock;
+			&& blockItem.getBlock() instanceof DoorBlock
+			&& (stack.is(ItemTags.WOODEN_DOORS) || stack.is(DOOR_SHIELDS)
+				|| blockItem.getBlock().defaultBlockState().is(BlockTags.WOODEN_DOORS));
 	}
 
 	public static boolean hasDoor(Zombie zombie) {
@@ -82,11 +90,11 @@ public final class ZombieDoorShieldBehavior {
 
 	public static boolean canHoldDoor(Zombie zombie, ItemStack stack) {
 		return isEligibleCarrier(zombie) && isWoodenDoor(stack)
-			&& (!(zombie instanceof ZombifiedPiglin) || stack.is(Items.CRIMSON_DOOR) || stack.is(Items.WARPED_DOOR));
+			&& (!(zombie instanceof ZombifiedPiglin) || stack.is(PIGLIN_DOORS));
 	}
 
 	public static void maybeEquipSpawnedDoor(Zombie zombie, RandomSource random) {
-		if (!canAcquire(zombie)
+		if (!(zombie.level() instanceof ServerLevel level) || !canAcquire(zombie)
 			|| !zombie.getMainHandItem().isEmpty() && !(zombie instanceof ZombifiedPiglin)
 			|| !zombie.getOffhandItem().isEmpty()) {
 			return;
@@ -100,7 +108,7 @@ public final class ZombieDoorShieldBehavior {
 			return;
 		}
 		ItemStack door = new ItemStack(ZombieDoorBiomes.doorFor(
-			zombie.level().getBiome(zombie.blockPosition()), random
+			level.getBiome(zombie.blockPosition()), level, zombie.blockPosition(), random
 		));
 		if (zombie instanceof ZombifiedPiglin) {
 			if (!canHoldDoor(zombie, door)) door = new ItemStack(random.nextBoolean() ? Items.CRIMSON_DOOR : Items.WARPED_DOOR);
