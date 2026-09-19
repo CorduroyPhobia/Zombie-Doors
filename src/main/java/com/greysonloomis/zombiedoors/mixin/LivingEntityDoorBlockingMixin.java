@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /** Use vanilla's blocking stage so invulnerability, hit feedback and damage accounting stay intact. */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityDoorBlockingMixin {
-    @Shadow protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker);
+    @Shadow protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker, DamageSource source, float damage, boolean fullyBlocked);
 
     @Inject(method = "applyItemBlocking", at = @At("HEAD"), cancellable = true)
     private void zombiedoors$blockMelee(ServerLevel level, DamageSource source, float damage,
@@ -22,7 +22,7 @@ public abstract class LivingEntityDoorBlockingMixin {
         if ((Object) this instanceof Zombie zombie) {
             float blocked = ZombieDoorShieldBehavior.blockMelee(zombie, source, damage);
             if (blocked > 0) {
-                blockUsingItem(level, (LivingEntity) source.getDirectEntity());
+                blockUsingItem(level, (LivingEntity) source.getDirectEntity(), source, damage, blocked >= damage);
                 callback.setReturnValue(blocked);
             }
         }

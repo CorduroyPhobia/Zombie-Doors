@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.monster.zombie.ZombieVillager;
 import net.minecraft.world.entity.npc.villager.VillagerType;
@@ -29,29 +30,30 @@ public final class ZombieDoorsThumbnailCapture implements FabricClientGameTest {
 
     @Override public void runTest(ClientGameTestContext context) {
         var variants = List.of(
-            new Variant("01-zombie-oak", EntityType.ZOMBIE, Items.OAK_DOOR),
-            new Variant("02-husk-acacia", EntityType.HUSK, Items.ACACIA_DOOR),
-            new Variant("03-villager-spruce", EntityType.ZOMBIE_VILLAGER, Items.SPRUCE_DOOR),
-            new Variant("04-zombie-birch", EntityType.ZOMBIE, Items.BIRCH_DOOR),
-            new Variant("05-husk-jungle", EntityType.HUSK, Items.JUNGLE_DOOR),
-            new Variant("06-villager-dark-oak", EntityType.ZOMBIE_VILLAGER, Items.DARK_OAK_DOOR),
-            new Variant("07-zombie-cherry", EntityType.ZOMBIE, Items.CHERRY_DOOR),
-            new Variant("08-husk-bamboo", EntityType.HUSK, Items.BAMBOO_DOOR),
-            new Variant("09-villager-mangrove", EntityType.ZOMBIE_VILLAGER, Items.MANGROVE_DOOR),
-            new Variant("10-zombie-pale-oak", EntityType.ZOMBIE, Items.PALE_OAK_DOOR),
-            new Variant("11-husk-crimson", EntityType.HUSK, Items.CRIMSON_DOOR),
-            new Variant("12-villager-warped", EntityType.ZOMBIE_VILLAGER, Items.WARPED_DOOR));
+            new Variant("01-zombie-oak", EntityTypes.ZOMBIE, Items.OAK_DOOR),
+            new Variant("02-husk-acacia", EntityTypes.HUSK, Items.ACACIA_DOOR),
+            new Variant("03-villager-spruce", EntityTypes.ZOMBIE_VILLAGER, Items.SPRUCE_DOOR),
+            new Variant("04-zombie-birch", EntityTypes.ZOMBIE, Items.BIRCH_DOOR),
+            new Variant("05-husk-jungle", EntityTypes.HUSK, Items.JUNGLE_DOOR),
+            new Variant("06-villager-dark-oak", EntityTypes.ZOMBIE_VILLAGER, Items.DARK_OAK_DOOR),
+            new Variant("07-zombie-cherry", EntityTypes.ZOMBIE, Items.CHERRY_DOOR),
+            new Variant("08-husk-bamboo", EntityTypes.HUSK, Items.BAMBOO_DOOR),
+            new Variant("09-villager-mangrove", EntityTypes.ZOMBIE_VILLAGER, Items.MANGROVE_DOOR),
+            new Variant("10-zombie-pale-oak", EntityTypes.ZOMBIE, Items.PALE_OAK_DOOR),
+            new Variant("11-husk-crimson", EntityTypes.HUSK, Items.CRIMSON_DOOR),
+            new Variant("12-villager-warped", EntityTypes.ZOMBIE_VILLAGER, Items.WARPED_DOOR));
         try (var world = context.worldBuilder().create()) {
             context.runOnClient(mc -> {
                 // The screenshot API resizes the render target but does not recalculate GUI scale.
                 mc.getWindow().setWidth(1536);
                 mc.getWindow().setHeight(1536);
                 mc.getWindow().setGuiScale(1);
-                mc.getMainRenderTarget().resize(1536, 1536);
+                mc.gameRenderer.mainRenderTarget().resize(1536, 1536);
             });
             for (var variant : variants) {
                 context.runOnClient(mc -> {
                     Zombie zombie = variant.mob.create(mc.level, EntitySpawnReason.COMMAND);
+                    zombie.setId(1);
                     zombie.setBaby(false);
                     zombie.setNoAi(true);
                     zombie.setPos(mc.player.position());
@@ -77,7 +79,7 @@ public final class ZombieDoorsThumbnailCapture implements FabricClientGameTest {
                         arrows = ZombieDoorShieldArrowImpact.append(arrows, impact);
                     }
                     shield.zombiedoors$setDoorShieldArrowImpacts(arrows);
-                    mc.setScreen(new StudioScreen(zombie));
+                    mc.gui.setScreen(new StudioScreen(zombie));
                 });
                 context.waitTicks(3);
                 context.takeScreenshot(TestScreenshotOptions.of(variant.name).disableCounterPrefix().withSize(1536, 1536));

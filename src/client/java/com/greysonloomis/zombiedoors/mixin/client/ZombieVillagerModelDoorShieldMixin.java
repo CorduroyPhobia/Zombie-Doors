@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ZombieVillagerModel.class)
 public abstract class ZombieVillagerModelDoorShieldMixin {
-	@Inject(method = "setupAnim", at = @At("TAIL"))
+	@Inject(method = "setupAttackAnimation", at = @At("TAIL"))
 	private void zombiedoors$finalDoorShieldArmPose(
 		ZombieVillagerRenderState state,
 		CallbackInfo callback

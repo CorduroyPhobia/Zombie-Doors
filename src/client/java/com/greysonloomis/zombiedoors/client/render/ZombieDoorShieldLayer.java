@@ -3,6 +3,11 @@ package com.greysonloomis.zombiedoors.client.render;
 import com.greysonloomis.zombiedoors.gameplay.ZombieDoorShieldArrowImpact;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import java.util.ArrayList;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.util.RandomSource;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.object.projectile.ArrowModel;
@@ -56,14 +61,14 @@ public final class ZombieDoorShieldLayer<
 		poseStack.translate(0.0F, -1.501F, 0.0F);
 		var pose = ZombieDoorShieldPose.sample(doorState);
 		poseStack.translate(pose.x(), pose.y(), pose.z());
-		poseStack.mulPose(Axis.XP.rotationDegrees(pose.pitch()));
+		poseStack.rotate(Axis.XP.rotationDegrees(pose.pitch()));
 
 		doorState.zombiedoors$getLowerDoorModel().submit(
 			poseStack, collector, doorLight, OverlayTexture.NO_OVERLAY, state.outlineColor
 		);
 		if (doorState.zombiedoors$getDoorDamageStage() >= 0) {
-			collector.submitBreakingBlockModel(poseStack, doorState.zombiedoors$getLowerCrackModel(),
-				0L, doorState.zombiedoors$getDoorDamageStage());
+			submitCracks(poseStack, collector, doorState.zombiedoors$getLowerCrackModel(),
+				doorState.zombiedoors$getDoorDamageStage());
 		}
 		poseStack.pushPose();
 		poseStack.translate(0.0F, 1.0F, 0.0F);
@@ -71,8 +76,8 @@ public final class ZombieDoorShieldLayer<
 			poseStack, collector, doorLight, OverlayTexture.NO_OVERLAY, state.outlineColor
 		);
 		if (doorState.zombiedoors$getDoorDamageStage() >= 0) {
-			collector.submitBreakingBlockModel(poseStack, doorState.zombiedoors$getUpperCrackModel(),
-				0L, doorState.zombiedoors$getDoorDamageStage());
+			submitCracks(poseStack, collector, doorState.zombiedoors$getUpperCrackModel(),
+				doorState.zombiedoors$getDoorDamageStage());
 		}
 		poseStack.popPose();
 		submitEmbeddedArrows(
@@ -83,6 +88,13 @@ public final class ZombieDoorShieldLayer<
 			doorState.zombiedoors$getRenderedDoorShieldArrowImpacts()
 		);
 		poseStack.popPose();
+	}
+
+	private static void submitCracks(PoseStack poseStack, SubmitNodeCollector collector,
+		BlockStateModel model, int stage) {
+		var parts = new ArrayList<BlockStateModelPart>();
+		model.collectParts(RandomSource.create(0L), parts);
+		collector.submitBreakingBlockModel(poseStack, parts, stage, model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT));
 	}
 
 	private void submitEmbeddedArrows(
@@ -105,8 +117,8 @@ public final class ZombieDoorShieldLayer<
 			float pitch = (float) Math.toDegrees(Math.atan2(
 				impact.directionY(), horizontal
 			));
-			poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0F));
-			poseStack.mulPose(Axis.ZP.rotationDegrees(pitch));
+			poseStack.rotate(Axis.YP.rotationDegrees(yaw - 90.0F));
+			poseStack.rotate(Axis.ZP.rotationDegrees(pitch));
 			collector.submitModel(
 				arrowModel,
 				arrowState,
@@ -114,8 +126,7 @@ public final class ZombieDoorShieldLayer<
 				TippableArrowRenderer.NORMAL_ARROW_LOCATION,
 				packedLight,
 				OverlayTexture.NO_OVERLAY,
-				outlineColor,
-				null
+				outlineColor
 			);
 			poseStack.popPose();
 		}
